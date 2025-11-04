@@ -2,19 +2,14 @@ module Api
   module V1
     class PostsController < ApplicationController
       protect_from_forgery with: :null_session
+      before_action :authenticate_user!
 
       def index
-        posts = Post.all
-        render json: posts
-      end
-
-      def show
-        post = Post.find(params[:id])
-        render json: post
+        render json: current_user.posts.order(created_at: :desc)
       end
 
       def create
-        post = Post.new(post_params)
+        post = current_user.posts.new(post_params)
         if post.save
           render json: post, status: :created
         else
@@ -23,16 +18,16 @@ module Api
       end
 
       def update
-        post = Post.find(params[:id])
+        post = current_user.posts.find(params[:id])
         if post.update(post_params)
-          render json: post
+          render json: post, status: :ok
         else
           render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       def destroy
-        post = Post.find(params[:id])
+        post = current_user.posts.find(params[:id])
         post.destroy
         head :no_content
       end
@@ -40,9 +35,27 @@ module Api
       private
 
       def post_params
-        params.require(:post).permit(:title, :content, :user_id)
+        params.require(:post).permit(:title, :content)
+      end
+
+      def authenticate_user!
+        header = request.headers['Authorization']
+        unless header&.start_with?('Bearer ')
+          render json: { error: 'Unauthorized' }, status: :unauthorized and return
+        end
+        token = header.split(' ').last
+        begin
+          decoded = JWT.decode(token, Rails.application.secret_key_base, true, { algorithm: 'HS256' })
+          user_id = decoded.first['sub']
+          @current_user = User.find(user_id)
+        rescue => _
+          render json: { error: 'Unauthorized' }, status: :unauthorized
+        end
+      end
+
+      def current_user
+        @current_user
       end
     end
   end
 end
-

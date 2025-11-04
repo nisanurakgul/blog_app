@@ -1,22 +1,15 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      get "posts/index"
-      get "posts/show"
-      get "posts/create"
-      get "posts/update"
-      get "posts/destroy"
+      post "/login",    to: "auth#create"
+      post "/register", to: "auth#register"
+
+      resources :posts, only: [:index, :create, :update, :destroy]
+      # Optional: allow /api/v1 to map to posts#index
+      get "/", to: "posts#index"
     end
   end
+
+  # Optional browser home (already exists)
   root "home#index"
-
-  resources :users
-  resources :posts
-  resources :comments
-
-  namespace :api do
-    namespace :v1 do
-      resources :posts
-    end
-  end
 end

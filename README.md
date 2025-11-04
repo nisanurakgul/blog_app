@@ -1,24 +1,26 @@
-# README
+# Blog App API (Rails 8)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Kurulum ve Çalıştırma
 
-Things you may want to cover:
+Terminalde proje klasöründe aşağıdaki adımları izleyin:
 
-* Ruby version
+```bash
+bundle install
+rails db:migrate
+rails db:seed
+rails s
+```
 
-* System dependencies
+## API Endpoints (v1)
 
-* Configuration
+- POST `/api/v1/register` — Yeni kullanıcı kaydı (JSON body: name, email, password, password_confirmation)
+- POST `/api/v1/login` — JWT üretimi (JSON body: email, password)
+- CRUD `/api/v1/posts` — Authorization: `Bearer <JWT>`
 
-* Database creation
+İzin verilen CORS originleri: `http://localhost:3000`, `http://localhost:3001`.
 
-* Database initialization
+Seed kullanıcı bilgisi:
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- name: `Nisanur Akgül`
+- email: `nisanurakgull123@gmail.com`
+- password: `123456`
